@@ -23,18 +23,21 @@ public class Enemy : Tank
                 transform.position += transform.forward.normalized * speed * Time.deltaTime;
                 break;
             case EnemyStates.Attack:
-                transform.LookAt(new Vector3(defender.transform.position.x, transform.position.y, defender.transform.position.z));
-
-                if (lastShootTime + fireSpeed < Time.time)
+                if (defender != null)
                 {
-                    StartCoroutine(FireTo(defender.transform.position, Vector3.Distance(defender.transform.position, fireTransform.position) * bulletSpeed));
-                    lastShootTime = Time.time;
+                    transform.LookAt(new Vector3(defender.transform.position.x, transform.position.y, defender.transform.position.z));
 
-                    defenderCS = defender.GetComponent<Defender>();
-                    defenderCS.Hit();
-                    if (defenderCS.remainingHealth <= 0)
+                    if (lastShootTime + fireSpeed < Time.time)
                     {
-                        EnemyCurrentState = EnemyStates.MoveToTarget;
+                        StartCoroutine(FireTo(defender.transform.position, Vector3.Distance(defender.transform.position, fireTransform.position) * bulletSpeed));
+                        lastShootTime = Time.time;
+
+                        defenderCS = defender.GetComponent<Defender>();
+                        defenderCS.Hit();
+                        if (defenderCS.remainingHealth <= 0)
+                        {
+                            EnemyCurrentState = EnemyStates.MoveToTarget;
+                        }
                     }
                 }
                 break;
