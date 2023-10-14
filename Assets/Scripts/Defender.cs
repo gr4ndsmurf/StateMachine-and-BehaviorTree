@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Defender : MonoBehaviour
+public class Defender : Tank
 {
     public Transform[] patrolStations;
     public float speed;
@@ -14,8 +14,7 @@ public class Defender : MonoBehaviour
 
     GameObject target = null;
 
-    public float fireSpeed = 1.5f;
-
+    Enemy enemy;
     void Update()
     {
         switch (DefenderCurrentState)
@@ -33,6 +32,19 @@ public class Defender : MonoBehaviour
             case DefenderStates.Attack:
                 transform.LookAt(new Vector3(target.transform.position.x, transform.position.y, target.transform.position.z));
 
+                if (lastShootTime + fireSpeed < Time.time)
+                {
+                    StartCoroutine(FireTo(target.transform.position, Vector3.Distance(target.transform.position, fireTransform.position) * bulletSpeed));
+                    lastShootTime = Time.time;
+
+                    enemy.Hit();
+
+                    if (enemy.remainingHealth <= 0)
+                    {
+                        DefenderCurrentState = DefenderStates.Patrol;
+                    }
+                }
+
                 break;
         }
     }
@@ -46,6 +58,8 @@ public class Defender : MonoBehaviour
             DefenderCurrentState = DefenderStates.Attack;
 
             target = other.gameObject;
+
+            enemy = target.GetComponent<Enemy>(); 
         }
     }
     private void OnTriggerExit(Collider other)
